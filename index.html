@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css", href="style.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js" ></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_RZqN8YtGM6RmHsi9QgOVZhrgYkyDvhA&sensor=true">
+    </script>
+    <script type="text/javascript" src="stops.js">
+    </script>
+    <script type="text/javascript" src="script.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="predictions" class="panel panel-default">
+      <div class="panel-heading">
+        <button type="button" class="refresh pull-left btn btn-xs">
+          <span class="glyphicon glyphicon-refresh"></span>
+        </button>
+        <button type="button" class="close">&times;</button>
+        <div class="title text-center"></div>
+      </div>
+      <ul class="list-group"></ul>
+    </div>
+  </body>
+</html>
