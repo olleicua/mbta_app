@@ -49,18 +49,28 @@ var openStop = function(stop, xhrResult) {
 };
 
 var loadStop = function(stop) {
+  $('#predictions').find('.refresh, .loading').toggle();
   $.ajax({
     type: 'GET',
     url: 'http://webservices.nextbus.com/service/publicXMLFeed' +
       '?command=predictions&a=mbta&stopId=' + stop.id,
     dataType: 'xml',
     success: function(data) {
+      $('#predictions').find('.refresh, .loading').toggle();
       openStop(stop, data);
     },
     error: function() {
+      $('#predictions').find('.refresh, .loading').toggle();
       console.log('An Error occurred')
     }
   });
+};
+
+var autoReload = function() {
+  if (currentStop) {
+    loadStop(currentStop);
+  }
+  setTimeout(autoReload, 60 * 1000);
 };
 
 var currentStop;
@@ -122,6 +132,8 @@ function initialize() {
       loadStop(currentStop);
     }
   })
+  
+  autoReload();
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
