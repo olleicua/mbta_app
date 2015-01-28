@@ -24,6 +24,10 @@ body {
     border-radius: 0px;
 }
 
+#predictions .direction {
+  max-width: calc(100% - 11em);
+}
+
 #predictions .label,
 #predictions .badge {
     margin-left: 3px;

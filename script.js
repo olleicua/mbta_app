@@ -1,17 +1,32 @@
 var displayTime = function(seconds) {
   var s = parseFloat(seconds);
-  return Math.floor(s / 60).toString() + 'm ' +
-    (s % 60).toString() + 's';
+  if (s > 0) {
+    return (Math.floor(s / 60).toString() + 'm ' +
+            (s % 60).toString() + 's');
+  } else {
+    return '...';
+  }
 };
 
 var formatPredictionRow = function(prediction) {
   return '<li class="list-group-item">&nbsp;' +
-    '<span class="label label-primary pull-left">' +
+    '<span class="label label-primary pull-left route">' +
     prediction.route + '</span>' +
-    '<span class="label label-info pull-left">' +
+    '<span class="label label-info pull-left direction">' +
     prediction.direction + '</span>&nbsp;' +
-    '<span class="badge pull-right">' +
+    '<span class="badge pull-right time">' +
     displayTime(prediction.seconds) + '</span></li>';
+};
+
+var tickDown = function(time) {
+  var match = /^(\d+)m\s+(\d+)s$/.exec(time);
+  if (match) {
+    var min = parseInt(match[1]);
+    var sec = parseInt(match[2]);
+    return displayTime((60 * min) + sec - 1);
+  } else {
+    return time;
+  }
 };
 
 var parsePredictions = function(xhrResult) {
@@ -61,7 +76,7 @@ var loadStop = function(stop) {
     },
     error: function() {
       $('#predictions').find('.refresh, .loading').toggle();
-      console.log('An Error occurred')
+      console.log('An Error occurred');
     }
   });
 };
@@ -84,7 +99,7 @@ function initialize() {
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   var map = new google.maps.Map(document.getElementById("map"), myOptions);
-  
+
   // Try W3C Geolocation (Preferred)
   if(navigator.geolocation) {
     browserSupportFlag = true;
@@ -101,13 +116,13 @@ function initialize() {
     browserSupportFlag = false;
     handleNoGeolocation(browserSupportFlag);
   }
-  
+
   google.maps.event.addListener(map, 'bounds_changed', function() {
     window.localStorage.setItem('zoom', map.getZoom());
     window.localStorage.setItem('lat', map.getCenter().lat());
     window.localStorage.setItem('lng', map.getCenter().lng());
   });
-  
+
   function handleNoGeolocation(errorFlag) {
     if (window.localStorage.getItem('zoom') &&
         window.localStorage.getItem('lat') &&
@@ -121,7 +136,7 @@ function initialize() {
       map.setCenter(initialLocation);
     }
   }
-  
+
   for (var i = 0; i < stops.length; i++) {
     (function(stop) {
       var pos =  new google.maps.LatLng(stop.lat, stop.lon);
@@ -136,19 +151,29 @@ function initialize() {
       });
     }).call(this, stops[i]);
   }
-  
+
   $('#predictions').find('.close').click(function() {
     $('#map').css('width', '100%');
     $('#predictions').hide();
   });
-  
+
   $('#predictions').find('.refresh').click(function() {
     if (currentStop) {
       loadStop(currentStop);
     }
   });
-  
+
   autoReload();
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
+
+var countDownTimer;
+var countDown = function() {
+  $('.time').each(function() {
+    var time = $(this).text();
+    $(this).text(tickDown(time));
+  });
+  countDownTimer = setTimeout(countDown, 1000);
+};
+countDown();
