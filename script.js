@@ -64,18 +64,21 @@ var openStop = function(stop, xhrResult) {
 };
 
 var loadStop = function(stop) {
-  $('#predictions').find('.refresh, .loading').toggle();
+  $('#predictions').find('.loading').css({ display: 'block' });
+  $('#predictions').find('.refresh').hide();
   $.ajax({
     type: 'GET',
     url: 'http://webservices.nextbus.com/service/publicXMLFeed' +
       '?command=predictions&a=mbta&stopId=' + stop.id,
     dataType: 'xml',
     success: function(data) {
-      $('#predictions').find('.refresh, .loading').toggle();
+      $('#predictions').find('.loading').css({ display: 'none' });
+      $('#predictions').find('.refresh').show();
       openStop(stop, data);
     },
     error: function() {
-      $('#predictions').find('.refresh, .loading').toggle();
+      $('#predictions').find('.loading').css({ display: 'none' });
+      $('#predictions').find('.refresh').show();
       console.log('An Error occurred');
     }
   });

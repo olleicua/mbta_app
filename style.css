@@ -24,6 +24,10 @@ body {
     border-radius: 0px;
 }
 
+#predictions .loading, #predictions .refresh {
+  width: 24px;
+}
+
 #predictions .direction {
   max-width: calc(100% - 11em);
 }
@@ -44,11 +48,9 @@ body {
   #predictions {
     width: 100%;
   }
-  
   .close.mobile {
     display: block;
   }
-  
   .close.desktop {
     display: none;
   }
