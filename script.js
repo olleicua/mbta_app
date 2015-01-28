@@ -113,8 +113,8 @@ function initialize() {
         window.localStorage.getItem('lat') &&
         window.localStorage.getItem('lng')) {
       map.setCenter(new google.maps.LatLng(window.localStorage.getItem('lat'),
-                                           window.localStorage.getItem('lng')))
-      map.setZoom(window.localStorage.getItem('zoom'))
+                                           window.localStorage.getItem('lng')));
+      map.setZoom(window.localStorage.getItem('zoom'));
     } else {
       alert("Geolocation service failed.");
       initialLocation = boston;
@@ -134,19 +134,19 @@ function initialize() {
         currentStop = stop;
         loadStop(stop);
       });
-    }).call(this, stops[i])
+    }).call(this, stops[i]);
   }
   
   $('#predictions').find('.close').click(function() {
     $('#map').css('width', '100%');
     $('#predictions').hide();
-  })
+  });
   
   $('#predictions').find('.refresh').click(function() {
     if (currentStop) {
       loadStop(currentStop);
     }
-  })
+  });
   
   autoReload();
 }
