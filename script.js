@@ -130,9 +130,9 @@ function initialize() {
     if (window.localStorage.getItem('zoom') &&
         window.localStorage.getItem('lat') &&
         window.localStorage.getItem('lng')) {
-      map.setCenter(new google.maps.LatLng(window.localStorage.getItem('lat'),
-                                           window.localStorage.getItem('lng')));
-      map.setZoom(window.localStorage.getItem('zoom'));
+      map.setCenter(new google.maps.LatLng(+window.localStorage.getItem('lat'),
+                                           +window.localStorage.getItem('lng')));
+      map.setZoom(+window.localStorage.getItem('zoom'));
     } else {
       //alert("Geolocation service failed.");
       initialLocation = boston;
