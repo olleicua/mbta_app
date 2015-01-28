@@ -93,31 +93,43 @@ var autoReload = function() {
 
 var currentStop;
 var initialLocation;
-var boston = new google.maps.LatLng(42.38, -71.1);
+var boston = { lat: 42.38, lng: -71.1, zoom: 12 };
 var browserSupportFlag;
+var map;
+function setLocation(lat, lng, zoom) {
+  map.setCenter(new google.maps.LatLng(lat, lng));
+  map.setZoom(zoom);
+}
+
+function setLocationToNonGeolocatedDefault() {
+  if (window.localStorage.getItem('zoom') &&
+      window.localStorage.getItem('lat') &&
+      window.localStorage.getItem('lng')) {
+    setLocation(
+      +window.localStorage.getItem('lat'),
+      +window.localStorage.getItem('lng'),
+      +window.localStorage.getItem('zoom'));
+  } else {
+    setLocation(boston.lat, boston.lng, boston.zoom);
+  }
+}
 
 function initialize() {
   var myOptions = {
     zoom: 12,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
-  var map = new google.maps.Map(document.getElementById("map"), myOptions);
+  map = new google.maps.Map(document.getElementById("map"), myOptions);
+  setLocationToNonGeolocatedDefault();
 
   // Try W3C Geolocation (Preferred)
   if(navigator.geolocation) {
-    browserSupportFlag = true;
     navigator.geolocation.getCurrentPosition(function(position) {
-      initialLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
-      map.setCenter(initialLocation);
-      map.setZoom(17);
+      setLocation(position.coords.latitude, position.coords.longitude, 17);
     }, function() {
-      handleNoGeolocation(browserSupportFlag);
+    }, {
+      timeout: 7000
     });
-  }
-  // Browser doesn't support Geolocation
-  else {
-    browserSupportFlag = false;
-    handleNoGeolocation(browserSupportFlag);
   }
 
   google.maps.event.addListener(map, 'bounds_changed', function() {
@@ -125,20 +137,6 @@ function initialize() {
     window.localStorage.setItem('lat', map.getCenter().lat());
     window.localStorage.setItem('lng', map.getCenter().lng());
   });
-
-  function handleNoGeolocation(errorFlag) {
-    if (window.localStorage.getItem('zoom') &&
-        window.localStorage.getItem('lat') &&
-        window.localStorage.getItem('lng')) {
-      map.setCenter(new google.maps.LatLng(window.localStorage.getItem('lat'),
-                                           window.localStorage.getItem('lng')));
-      map.setZoom(window.localStorage.getItem('zoom'));
-    } else {
-      //alert("Geolocation service failed.");
-      initialLocation = boston;
-      map.setCenter(initialLocation);
-    }
-  }
 
   for (var i = 0; i < stops.length; i++) {
     (function(stop) {
