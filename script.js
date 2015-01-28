@@ -116,7 +116,7 @@ function initialize() {
                                            window.localStorage.getItem('lng')));
       map.setZoom(window.localStorage.getItem('zoom'));
     } else {
-      alert("Geolocation service failed.");
+      //alert("Geolocation service failed.");
       initialLocation = boston;
       map.setCenter(initialLocation);
     }
