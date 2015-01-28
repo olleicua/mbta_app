@@ -28,3 +28,24 @@ body {
 #predictions .badge {
     margin-left: 3px;
 }
+
+.close.mobile {
+  display: none;
+}
+.close.desktop {
+  display: block;
+}
+
+@media all and (max-width: 600px) {
+  #predictions {
+    width: 100%;
+  }
+  
+  .close.mobile {
+    display: block;
+  }
+  
+  .close.desktop {
+    display: none;
+  }
+}

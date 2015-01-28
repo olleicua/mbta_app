@@ -84,13 +84,14 @@ function initialize() {
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   var map = new google.maps.Map(document.getElementById("map"), myOptions);
-
+  
   // Try W3C Geolocation (Preferred)
   if(navigator.geolocation) {
     browserSupportFlag = true;
     navigator.geolocation.getCurrentPosition(function(position) {
       initialLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
       map.setCenter(initialLocation);
+      map.setZoom(17);
     }, function() {
       handleNoGeolocation(browserSupportFlag);
     });
@@ -100,11 +101,25 @@ function initialize() {
     browserSupportFlag = false;
     handleNoGeolocation(browserSupportFlag);
   }
-
+  
+  google.maps.event.addListener(map, 'bounds_changed', function() {
+    window.localStorage.setItem('zoom', map.getZoom());
+    window.localStorage.setItem('lat', map.getCenter().lat());
+    window.localStorage.setItem('lng', map.getCenter().lng());
+  });
+  
   function handleNoGeolocation(errorFlag) {
-    alert("Geolocation service failed.");
-    initialLocation = boston;
-    map.setCenter(initialLocation);
+    if (window.localStorage.getItem('zoom') &&
+        window.localStorage.getItem('lat') &&
+        window.localStorage.getItem('lng')) {
+      map.setCenter(new google.maps.LatLng(window.localStorage.getItem('lat'),
+                                           window.localStorage.getItem('lng')))
+      map.setZoom(window.localStorage.getItem('zoom'))
+    } else {
+      alert("Geolocation service failed.");
+      initialLocation = boston;
+      map.setCenter(initialLocation);
+    }
   }
   
   for (var i = 0; i < stops.length; i++) {
