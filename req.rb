@@ -1,3 +1,6 @@
+#!/usr/bin/env ruby
+# writes new stops.js file and outputs it to stdout as well
+
 require 'net/http'
 require 'rubygems'
 require 'json'
@@ -18,7 +21,7 @@ stops = {};
 
 routes.each do |r|
   sleep 11
-  puts "#{r}.."
+  STDERR.puts "#{r}.."
   begin
     stopsXML = get "http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=mbta&r=#{r}"
     stopsTags = stopsXML.scan(/<stop tag="[^"]*" title="[^"]*" lat="[^"]*" lon="[^"]*" stopId="[^"]*"\/>/)
@@ -33,11 +36,11 @@ routes.each do |r|
       }
     end
   rescue
-    puts "An error occurred for in route #{r}"
+    STDERR.puts "An error occurred for in route #{r}"
   end
 end
 
 puts JSON.dump stops.values
 
 f = open 'stops.js', 'w'
-f.write JSON.dump stops.values
+f.write ('var stops = ' + JSON.dump(stops.values))
