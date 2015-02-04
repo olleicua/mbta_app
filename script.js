@@ -19,26 +19,22 @@ var displayTime = function(seconds) {
     return '...';
   }
 };
-
-var formatPredictionRow = function(prediction) {
-  return '<li class="list-group-item">&nbsp;' +
-    '<span class="label label-primary pull-left route">' +
-    prediction.route + '</span>' +
-    '<span class="label label-info pull-left direction">' +
-    prediction.direction + '</span>&nbsp;' +
-    '<span class="badge pull-right time">' +
-    displayTime(prediction.seconds) + '</span></li>';
+var displayUnixTimeOfArrival = function(time) {
+  return displayTime(time - Math.round(Date.now() / 1000));
 };
 
-var tickDown = function(time) {
-  var match = /^(\d+)m\s+(\d+)s$/.exec(time);
-  if (match) {
-    var min = parseInt(match[1]);
-    var sec = parseInt(match[2]);
-    return displayTime((60 * min) + sec - 1);
-  } else {
-    return time;
-  }
+// epochTime is in milliseconds
+var formatPredictionRow = function(prediction) {
+  var $li = $('<li class="list-group-item">');
+  var $route = $('<span class="label label-primary pull-left route">');
+  $route.text(prediction.route);
+  var $dir = $('<span class="label label-info pull-left direction">');
+  $dir.text(prediction.direction);
+  var $time = $('<span class="badge pull-right time">');
+  $time.attr('data-occurs', prediction.unixTimeOfArrival);
+  $time.text(displayUnixTimeOfArrival(prediction.unixTimeOfArrival));
+  $li.append('&nbsp;', $route, $dir, $time);
+  return $li;
 };
 
 var parsePredictions = function(xhrResult) {
@@ -51,7 +47,8 @@ var parsePredictions = function(xhrResult) {
         ret.push({
           route: route,
           direction: direction,
-          seconds: $(this).attr('seconds')
+          unixTimeOfArrival: Math.round($(this).attr('epochTime') / 1000),
+          affectedByLayover: $(this).attr('affectedByLayover')
         });
       });
     });
@@ -276,8 +273,8 @@ google.maps.event.addDomListener(window, 'load', initialize);
 var countDownTimer;
 var countDown = function() {
   $('.time').each(function() {
-    var time = $(this).text();
-    $(this).text(tickDown(time));
+    var time = $(this).attr('data-occurs');
+    $(this).text(displayUnixTimeOfArrival(time));
   });
   countDownTimer = setTimeout(countDown, 1000);
 };
