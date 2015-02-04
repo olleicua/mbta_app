@@ -85,6 +85,7 @@ var setupFavorites = function() {
 };
 
 var toggleFavorite = function(stop) {
+  $('.favorite').blur();
   var favorites = storage('favorites') || [];
   var index = favorites.indexOf(stop.id);
   if (index !== -1) {
