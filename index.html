@@ -17,15 +17,96 @@
   </head>
   <body>
     <div id="map"></div>
+    <div class="menu panel panel-default favorites">
+      <div class="panel-heading">
+        <button type="button" class="close-menu pull-left desktop close btn btn-xs">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <button type="button" class="close-menu pull-left mobile close btn btn-xs">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </button>
+        <span class="glyphicon glyphicon-star pull-right"></span>
+        <div class="title text-center">Favorites</div>
+      </div>
+      <ul class="list-group"></ul>
+    </div>
+    <div class="menu panel panel-default search">
+      <div class="panel-heading">
+        <button type="button" class="close-menu pull-left desktop close btn btn-xs">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <button type="button" class="close-menu pull-left mobile close btn btn-xs">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </button>
+        <span class="glyphicon glyphicon-search pull-right"></span>
+        <div class="title text-center">Search</div>
+      </div>
+      <ul class="list-group">
+        <li class="list-group-item list-group-item-info">
+          Search feature is currently in development
+        </li>
+      </ul>
+    </div>
+    <div class="menu panel panel-default settings">
+      <div class="panel-heading">
+        <button type="button" class="close-menu pull-left desktop close btn btn-xs">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <button type="button" class="close-menu pull-left mobile close btn btn-xs">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </button>
+        <span class="glyphicon glyphicon-cog pull-right"></span>
+        <div class="title text-center">Settings</div>
+      </div>
+      <ul class="list-group">
+        <li class="list-group-item clear-data">
+          Clear all data this app has stored on this device
+        </li>
+        <li class="list-group-item">
+          <a href="https://github.com/mbta-bus-app/mbta-bus-app.github.io" target="_blank">
+            Give us feedback
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div id="menu-nav" class="panel panel-default">
+      <ul class="nav nav-pills">
+        <li class="geolocate">
+          <a href="javascript:void(0);" class="geolocate">
+            <span class="glyphicon glyphicon-map-marker"></span>
+          </a>
+        </li>
+        <li class="favorites">
+          <a href="javascript:void(0);" class="favorites">
+            <span class="glyphicon glyphicon-star"></span>
+          </a>
+        </li>
+        <li class="search">
+          <a href="javascript:void(0);" class="search">
+            <span class="glyphicon glyphicon-search"></span>
+          </a>
+        </li>
+        <li class="settings">
+          <a href="javascript:void(0);" class="settings">
+            <span class="glyphicon glyphicon-cog"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
     <div id="predictions" class="panel panel-default">
       <div class="panel-heading">
-        <img class="loading pull-left" src="ajax-loader.gif" style="display:none;" />
-        <button type="button" class="refresh pull-left btn btn-xs">
+        <img class="loading pull-right" src="ajax-loader.gif" style="display:none;" />
+        <button type="button" class="refresh pull-right close btn btn-xs">
           <span class="glyphicon glyphicon-refresh"></span>
         </button>
-        <button type="button" class="close desktop btn btn-xs">&times;</button>
-        <button type="button" class="close mobile btn btn-xs">
-          <span class="glyphicon glyphicon-globe"></span>
+        <button type="button" class="close-predictions pull-left desktop close btn btn-xs">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <button type="button" class="close-predictions pull-left mobile close btn btn-xs">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </button>
+        <button type="button" class="favorite pull-left close btn btn-xs">
+          <span class="glyphicon glyphicon-star-empty"></span>
         </button>
         <div class="title text-center"></div>
       </div>

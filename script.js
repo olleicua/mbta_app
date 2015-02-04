@@ -1,3 +1,15 @@
+var storage = function(key, value) {
+  if (_.isUndefined(value)) {
+    try {
+      return JSON.parse(window.localStorage.getItem(key));
+    } catch (e) {
+      return void(0);
+    }
+  } else {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  }
+};
+
 var displayTime = function(seconds) {
   var s = parseFloat(seconds);
   if (s > 0) {
@@ -49,11 +61,66 @@ var parsePredictions = function(xhrResult) {
   });
 };
 
+var closeMenus = function() {
+  $('#menu-nav').find('li').removeClass('active');
+  $('.menu').hide();
+};
+
+var setupFavorites = function() {
+  var $menu = $('.menu.favorites');
+  var $list = $menu.find('.list-group');
+  var favorites = storage('favorites');
+  $list.empty();
+  _.each(favorites, function(stopId) {
+    var stop = _.findWhere(stops, {id: stopId});
+    $list.append('<li class="list-group-item" data-id="' + stop.id +
+                 '" data-lat="' + stop.lat + '" data-lon="' +
+                 stop.lon + '" data-title="' + stop.title +
+                 '">' + stop.title + '</li>');
+  });
+  $list.find('.list-group-item').click(function() {
+    stop = $(this).data();
+    setLocation(stop.lat, stop.lon, 17);
+    window.currentStop = stop;
+    loadStop(stop);
+    closeMenus();
+  });
+};
+
+var toggleFavorite = function(stop) {
+  var favorites = storage('favorites') || [];
+  var index = favorites.indexOf(stop.id);
+  if (index !== -1) {
+    favorites.splice(index, 1);
+  } else {
+    favorites.push(stop.id);
+  }
+  storage('favorites', favorites);
+  checkFavorite(stop);
+  setupFavorites();
+};
+
+var checkFavorite = function(stop) {
+  var favorites = storage('favorites') || [];
+  if (favorites.indexOf(stop.id) !== -1) {
+    $('.favorite').find('span')
+      .removeClass('glyphicon-star-empty')
+      .addClass('glyphicon-star')
+      .css({color: '#d90'});
+  } else {
+    $('.favorite').find('span')
+      .addClass('glyphicon-star-empty')
+      .removeClass('glyphicon-star')
+      .css({color: '#000'});
+  }
+};
+
 var openStop = function(stop, xhrResult) {
   var $box = $('#predictions');
   var $head = $box.find('.panel-heading');
   var predictions = parsePredictions(xhrResult);
   var p;
+  checkFavorite(stop);
   $head.find('.title').html(stop.title);
   $box.find('.list-group').html('');
   for (var i = 0; i < predictions.length; i++) {
@@ -102,26 +169,14 @@ function setLocation(lat, lng, zoom) {
 }
 
 function setLocationToNonGeolocatedDefault() {
-  if (window.localStorage.getItem('zoom') &&
-      window.localStorage.getItem('lat') &&
-      window.localStorage.getItem('lng')) {
-    setLocation(
-      +window.localStorage.getItem('lat'),
-      +window.localStorage.getItem('lng'),
-      +window.localStorage.getItem('zoom'));
+  if (storage('zoom') && storage('lat') && storage('lng')) {
+    setLocation(storage('lat'), storage('lng'), storage('zoom'));
   } else {
     setLocation(boston.lat, boston.lng, boston.zoom);
   }
 }
 
-function initialize() {
-  var myOptions = {
-    zoom: 12,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  };
-  map = new google.maps.Map(document.getElementById("map"), myOptions);
-  setLocationToNonGeolocatedDefault();
-
+var geolocate = function() {
   // Try W3C Geolocation (Preferred)
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
@@ -131,11 +186,21 @@ function initialize() {
       timeout: 7000
     });
   }
+};
+
+function initialize() {
+  var myOptions = {
+    zoom: 12,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+  map = new google.maps.Map(document.getElementById("map"), myOptions);
+  setLocationToNonGeolocatedDefault();
+  geolocate();
 
   google.maps.event.addListener(map, 'bounds_changed', function() {
-    window.localStorage.setItem('zoom', map.getZoom());
-    window.localStorage.setItem('lat', map.getCenter().lat());
-    window.localStorage.setItem('lng', map.getCenter().lng());
+    storage('zoom', map.getZoom());
+    storage('lat', map.getCenter().lat());
+    storage('lng', map.getCenter().lng());
   });
 
   for (var i = 0; i < stops.length; i++) {
@@ -153,15 +218,54 @@ function initialize() {
     }).call(this, stops[i]);
   }
 
-  $('#predictions').find('.close').click(function() {
+  $('#predictions').find('.close-predictions').click(function() {
     $('#map').css('width', '100%');
     $('#predictions').hide();
+  });
+
+  $('.menu').find('.close-menu').click(function() {
+    $('#map').css('width', '100%');
+    closeMenus();
   });
 
   $('#predictions').find('.refresh').click(function() {
     if (currentStop) {
       loadStop(currentStop);
     }
+  });
+
+  $('#predictions').find('.favorite').click(function() {
+    if (currentStop) {
+      toggleFavorite(currentStop);
+    }
+  });
+
+  $('#menu-nav').find('a.geolocate').click(function(){
+    geolocate();
+    closeMenus();
+  });
+
+  $('#menu-nav').find('a.favorites').click(function() {
+    setupFavorites();
+    closeMenus();
+    $('#menu-nav li.favorites').addClass('active');
+    $('.menu.favorites').show();
+  });
+
+  $('#menu-nav').find('a.search').click(function() {
+    closeMenus();
+    $('#menu-nav li.search').addClass('active');
+    $('.menu.search').show();
+  });
+
+  $('#menu-nav').find('a.settings').click(function() {
+    closeMenus();
+    $('#menu-nav li.settings').addClass('active');
+    $('.menu.settings').show();
+  });
+
+  $('.menu.settings').find('.clear-data').click(function() {
+    window.localStorage.clear();
   });
 
   autoReload();
