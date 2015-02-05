@@ -10,6 +10,12 @@ var storage = function(key, value) {
   }
 };
 
+var pushState = function(state) {
+  if (window.history.pushState) {
+    window.history.pushState(state, 'MBTA Bus App', '#' + state);
+  }
+};
+
 var displayTime = function(seconds) {
   var s = parseFloat(seconds);
   if (s > 0) {
@@ -124,7 +130,6 @@ var openStop = function(stop, xhrResult) {
   for (var i = 0; i < predictions.length; i++) {
     $box.find('.list-group').append(formatPredictionRow(predictions[i]));
   }
-  $('#map').css('width', '70%');
   $box.show();
 };
 
@@ -212,16 +217,22 @@ function initialize() {
     google.maps.event.addListener(marker, 'click', function() {
       currentStop = stop;
       loadStop(stop);
+      pushState('stops/' + stop.id);
     });
   }
 
   $('#predictions').find('.close-predictions').click(function() {
     $('#predictions').hide();
+    pushState('map');
   });
 
   $('.menu').find('.close-menu').click(function() {
-    $('#map').css('width', '100%');
     closeMenus();
+    if ($('#predictions').is(':visible')) {
+      pushState('stops/' + currentStop.id);
+    } else {
+      pushState('map');
+    }
   });
 
   $('#predictions').find('.refresh').click(function() {
@@ -238,7 +249,9 @@ function initialize() {
 
   $('#menu-nav').find('a.geolocate').click(function(){
     geolocate();
+    $('#predictions').hide();
     closeMenus();
+    pushState('map');
   });
 
   $('#menu-nav').find('a.favorites').click(function() {
@@ -246,31 +259,53 @@ function initialize() {
     closeMenus();
     $('#menu-nav li.favorites').addClass('active');
     $('.menu.favorites').show();
+    pushState('favorites');
   });
 
   $('#menu-nav').find('a.search').click(function() {
     closeMenus();
     $('#menu-nav li.search').addClass('active');
     $('.menu.search').show();
+    pushState('search');
   });
 
   $('#menu-nav').find('a.settings').click(function() {
     closeMenus();
     $('#menu-nav li.settings').addClass('active');
     $('.menu.settings').show();
+    pushState('settings');
   });
 
   $('.menu.settings').find('.clear-data').click(function() {
     window.localStorage.clear();
   });
 
-  document.addEventListener('backbutton', function() {
-    if ($('.menu:visible')) {
+  window.onpopstate = function(event) {
+    var m;
+    if (event.state === 'favorites') {
+      setupFavorites();
+      closeMenus();
+      $('#menu-nav li.favorites').addClass('active');
+      $('.menu.favorites').show();
+    } else if (event.state === 'search') {
+      closeMenus();
+      $('#menu-nav li.search').addClass('active');
+      $('.menu.search').show();
+    } else if (event.state === 'settings') {
+      closeMenus();
+      $('#menu-nav li.settings').addClass('active');
+      $('.menu.settings').show();
+    } else if (m = /^stops\/(\d+)$/.exec(event.state)) {
+      var stop = _.findWhere(stops, {id: m[1]});
+      setLocation(stop.lat, stop.lon, 17);
+      window.currentStop = stop;
+      loadStop(stop);
       closeMenus();
     } else {
+      closeMenus();
       $('#predictions').hide();
     }
-  }, true);
+  };
 
   autoReload();
 }
