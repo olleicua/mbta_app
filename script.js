@@ -60,7 +60,7 @@ var parsePredictions = function(xhrResult) {
     });
   });
   return _.sortBy(ret, function(p) {
-    return parseFloat(p.seconds);
+    return parseFloat(p.unixTimeOfArrival);
   });
 };
 
