@@ -207,18 +207,19 @@ function initialize() {
   });
 
   for (var i = 0; i < stops.length; i++) {
-    var stop = stops[i];
-    var pos =  new google.maps.LatLng(stop.lat, stop.lon);
-    var marker = new google.maps.Marker({
-      position: pos,
-      map: map,
-      title: stop.title
-    });
-    google.maps.event.addListener(marker, 'click', function() {
-      currentStop = stop;
-      loadStop(stop);
-      pushState('stops/' + stop.id);
-    });
+    (function(stop) {
+      var pos =  new google.maps.LatLng(stop.lat, stop.lon);
+      var marker = new google.maps.Marker({
+        position: pos,
+        map: map,
+        title: stop.title
+      });
+      google.maps.event.addListener(marker, 'click', function() {
+        currentStop = stop;
+        loadStop(stop);
+        pushState('stops/' + stop.id);
+      });
+    })(stops[i]);
   }
 
   $('#predictions').find('.close-predictions').click(function() {
