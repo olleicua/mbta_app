@@ -153,6 +153,7 @@ var loadStop = function(stop) {
     success: function(data) {
       $('#predictions').find('.loading').css({ display: 'none' });
       $('#predictions').find('.refresh').show();
+      $('#predictions .last-update').hide();
       openStop(stop, data);
     },
     error: function() {
