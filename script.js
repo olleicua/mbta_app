@@ -341,7 +341,7 @@ var countDown = function() {
     $(this).text(displayUnixTimeOfArrival(time));
   });
   if (currentStop && currentStop.lastUpdate) {
-    var seconds = Math.floor((Date.now() - currentStop.lastUpdate) / 1000);
+    var seconds = Math.round((Date.now() - currentStop.lastUpdate) / 1000);
     if (seconds > 0) {
       $('.last-update-time').text(displayTime(seconds) + ' ago');
       $('.last-update').show();
