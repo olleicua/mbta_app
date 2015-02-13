@@ -10,6 +10,14 @@ var storage = function(key, value) {
   }
 };
 
+var setCurrentStop = function(stop) {
+  if (window.currentStop !== stop) {
+    $('#predictions .last-update').hide();
+  }
+  window.currentStop = stop;
+  window.currentStop.lastUpdate = 0;
+};
+
 var pushState = function(state) {
   if (window.history.pushState) {
     window.history.pushState(state, 'MBTA Bus App', '#' + state);
@@ -37,7 +45,7 @@ var formatPredictionRow = function(prediction) {
   var $dir = $('<span class="label label-info pull-left direction">');
   $dir.text(prediction.direction);
   var $time = $('<span class="badge pull-right time">');
-  $time.attr('data-occurs', prediction.unixTimeOfArrival);
+  $time.data('occurs', prediction.unixTimeOfArrival);
   $time.text(displayUnixTimeOfArrival(prediction.unixTimeOfArrival));
   $li.append('&nbsp;', $route, $dir, $time);
   return $li;
@@ -84,7 +92,7 @@ var setupFavorites = function() {
   $list.find('.list-group-item').click(function() {
     stop = $(this).data();
     setLocation(stop.lat, stop.lon, 17);
-    window.currentStop = stop;
+    setCurrentStop(stop);
     loadStop(stop);
     closeMenus();
   });
@@ -130,6 +138,7 @@ var openStop = function(stop, xhrResult) {
   for (var i = 0; i < predictions.length; i++) {
     $box.find('.list-group').append(formatPredictionRow(predictions[i]));
   }
+  currentStop.lastUpdate = Date.now();
   $box.show();
 };
 
@@ -179,12 +188,18 @@ function setLocationToNonGeolocatedDefault() {
   }
 }
 
-var geolocate = function() {
+var geolocate = function(callback) {
   // Try W3C Geolocation (Preferred)
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       setLocation(position.coords.latitude, position.coords.longitude, 17);
+      if (_.isFunction(callback)) {
+        callback(true);
+      }
     }, function() {
+      if (_.isFunction(callback)) {
+        callback(false);
+      }
     }, {
       timeout: 7000
     });
@@ -215,7 +230,7 @@ function initialize() {
         title: stop.title
       });
       google.maps.event.addListener(marker, 'click', function() {
-        currentStop = stop;
+        setCurrentStop(stop);
         loadStop(stop);
         pushState('stops/' + stop.id);
       });
@@ -278,7 +293,12 @@ function initialize() {
   });
 
   $('.menu.settings').find('.clear-data').click(function() {
-    window.localStorage.clear();
+    if (confirm('Are you sure?  This will remove your favorites.')) {
+      window.localStorage.clear();
+      setupFavorites();
+      checkFavorite(currentStop);
+      alert('Favorites and most recent location have been cleared from this device');
+    }
   });
 
   window.onpopstate = function(event) {
@@ -299,7 +319,7 @@ function initialize() {
     } else if (m = /^stops\/(\d+)$/.exec(event.state)) {
       var stop = _.findWhere(stops, {id: m[1]});
       setLocation(stop.lat, stop.lon, 17);
-      window.currentStop = stop;
+      setCurrentStop(stop);
       loadStop(stop);
       closeMenus();
     } else {
@@ -316,9 +336,16 @@ google.maps.event.addDomListener(window, 'load', initialize);
 var countDownTimer;
 var countDown = function() {
   $('.time').each(function() {
-    var time = $(this).attr('data-occurs');
+    var time = $(this).data('occurs');
     $(this).text(displayUnixTimeOfArrival(time));
   });
+  if (currentStop && currentStop.lastUpdate) {
+    var seconds = Math.floor((Date.now() - currentStop.lastUpdate) / 1000);
+    if (seconds > 0) {
+      $('.last-update-time').text(displayTime(seconds) + ' ago');
+      $('.last-update').show();
+    }
+  }
   countDownTimer = setTimeout(countDown, 1000);
 };
 countDown();
